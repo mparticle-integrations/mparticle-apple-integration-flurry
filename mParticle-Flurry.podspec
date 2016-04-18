@@ -15,6 +15,6 @@ Pod::Spec.new do |s|
 
   s.source_files = 'mParticle-Flurry/*.{h,m,mm}'
 
-  s.dependency 'mParticle-Apple-SDK', '6.0.0'
+  s.dependency 'mParticle-Apple-SDK/mParticle', '6.0.0'
   s.dependency 'Flurry-iOS-SDK/FlurrySDK', '7.5.2'
 end
