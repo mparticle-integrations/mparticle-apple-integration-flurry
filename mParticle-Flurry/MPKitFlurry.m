@@ -1,5 +1,5 @@
 //
-//  MPKitFlurry.mm
+//  MPKitFlurry.m
 //
 //  Copyright 2016 mParticle, Inc.
 //
@@ -19,10 +19,11 @@
 #import "MPKitFlurry.h"
 #import "MPEvent.h"
 #import <CoreLocation/CoreLocation.h>
-#include "MPHasher.h"
+#import "MPIHasher.h"
 #import "mParticle.h"
 #import "MPKitRegister.h"
 #import "Flurry.h"
+#import "MPEnums.h"
 
 @implementation MPKitFlurry
 
@@ -187,7 +188,7 @@
         if ([self.configuration[@"hashCustomerId"] caseInsensitiveCompare:@"true"]) {
             NSData *identityData = [identityString dataUsingEncoding:NSUTF8StringEncoding];
 
-            uint64_t identityHash = mParticle::Hasher::hashFNV1a((const char *)[identityData bytes], (int)[identityData length]);
+            uint64_t identityHash = [MPIHasher hashFNV1a:identityData];
             idString = [@(identityHash) stringValue];
         } else {
             idString = identityString;
