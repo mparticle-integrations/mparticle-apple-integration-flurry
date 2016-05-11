@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-Flurry"
-    s.version          = "6.0.2"
+    s.version          = "6.0.4"
     s.summary          = "Flurry integration for mParticle"
 
     s.description      = <<-DESC
