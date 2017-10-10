@@ -32,25 +32,24 @@
 }
 
 + (void)load {
-    MPKitRegister *kitRegister = [[MPKitRegister alloc] initWithName:@"Flurry" className:@"MPKitFlurry" startImmediately:NO];
+    MPKitRegister *kitRegister = [[MPKitRegister alloc] initWithName:@"Flurry" className:@"MPKitFlurry"];
     [MParticle registerExtension:kitRegister];
 }
 
 #pragma mark MPKitInstanceProtocol methods
-- (instancetype)initWithConfiguration:(NSDictionary *)configuration startImmediately:(BOOL)startImmediately {
-    self = [super init];
-    if (!self || !configuration[@"apiKey"]) {
-        return nil;
+- (MPKitExecStatus *)didFinishLaunchingWithConfiguration:(NSDictionary *)configuration {
+    MPKitExecStatus *execStatus = nil;
+    
+    if (!configuration[@"apiKey"]) {
+        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeRequirementsNotMet];
+        return execStatus;
     }
 
     _configuration = configuration;
-    _started = startImmediately;
+    _started = NO;
 
-    if (startImmediately) {
-        [self start];
-    }
-
-    return self;
+    execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
 }
 
 - (void)start {
