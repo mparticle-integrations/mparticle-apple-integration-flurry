@@ -26,10 +26,10 @@
         execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeRequirementsNotMet];
         return execStatus;
     }
-
+    
     _configuration = configuration;
     _started = NO;
-
+    
     execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
@@ -38,14 +38,14 @@
     if ([self.configuration[@"captureExceptions"] caseInsensitiveCompare:@"true"] == NSOrderedSame) {
         [Flurry setCrashReportingEnabled:YES];
     }
-
+    
     [Flurry startSession:self.configuration[@"apiKey"] withOptions:self.launchOptions];
-
+    
     _started = YES;
-
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
-
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
                                                             object:nil
                                                           userInfo:userInfo];
@@ -54,100 +54,100 @@
 
 - (MPKitExecStatus *)beginTimedEvent:(MPEvent *)event {
     FlurryEventRecordStatus flurryRecordStatus = FlurryEventFailed;
-
+    
     if (event.info) {
         flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.info timed:YES];
     } else {
         flurryRecordStatus = [Flurry logEvent:event.name timed:YES];
     }
-
+    
     MPKitReturnCode kitReturnCode = flurryRecordStatus != FlurryEventFailed ? MPKitReturnCodeSuccess : MPKitReturnCodeFail;
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:kitReturnCode];
-
+    
     return execStatus;
 }
 
 - (MPKitExecStatus *)endTimedEvent:(MPEvent *)event {
     [Flurry endTimedEvent:event.name withParameters:event.info];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (MPKitExecStatus *)logEvent:(MPEvent *)event {
     FlurryEventRecordStatus flurryRecordStatus = FlurryEventFailed;
-
+    
     if (event.info) {
         flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.info];
     } else {
         flurryRecordStatus = [Flurry logEvent:event.name];
     }
-
+    
     MPKitReturnCode kitReturnCode = flurryRecordStatus != FlurryEventFailed ? MPKitReturnCodeSuccess : MPKitReturnCodeFail;
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:kitReturnCode];
-
+    
     return execStatus;
 }
 
 - (MPKitExecStatus *)logError:(NSString *)message eventInfo:(NSDictionary *)eventInfo {
     NSError *error = [NSError errorWithDomain:message code:1 userInfo:eventInfo];
     [Flurry logError:message message:message error:error];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (MPKitExecStatus *)logException:(NSException *)exception {
     [Flurry logError:[exception name] message:[exception reason] exception:exception];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (MPKitExecStatus *)logScreen:(MPEvent *)event {
     [Flurry logPageView];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (MPKitExecStatus *)setLocation:(CLLocation *)location {
     MPKitExecStatus *execStatus;
-
+    
     if ([[self.configuration[@"includeLocation"] lowercaseString] isEqualToString:@"true"]) {
         [Flurry setLatitude:location.coordinate.latitude longitude:location.coordinate.longitude horizontalAccuracy:location.horizontalAccuracy verticalAccuracy:location.verticalAccuracy];
         execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     } else {
         execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeUnavailable];
     }
-
+    
     return execStatus;
 }
 
 - (MPKitExecStatus *)setDebugMode:(BOOL)debugMode {
     [Flurry setDebugLogEnabled:debugMode];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (nonnull MPKitExecStatus *)openURL:(nonnull NSURL *)url options:(nullable NSDictionary<NSString *, id> *)options API_AVAILABLE(ios(9.0)){
     [Flurry addSessionOrigin:options[UIApplicationOpenURLOptionsSourceApplicationKey] withDeepLink:[url absoluteString]];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (MPKitExecStatus *)openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     [Flurry addSessionOrigin:sourceApplication withDeepLink:[url absoluteString]];
-
+    
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (MPKitExecStatus *)setUserAttribute:(NSString *)key value:(NSString *)value {
     MPKitExecStatus *execStatus;
-
+    
     if ([key isEqualToString:mParticleUserAttributeAge]) {
         [Flurry setAge:(int)[value integerValue]];
         execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
@@ -157,24 +157,24 @@
     } else {
         execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeUnavailable];
     }
-
+    
     return execStatus;
 }
 
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString identityType:(MPUserIdentity)identityType {
     MPKitExecStatus *execStatus;
-
+    
     if (identityType == MPUserIdentityCustomerId && identityString.length > 0) {
         NSString *idString = nil;
         if ([self.configuration[@"hashCustomerId"] caseInsensitiveCompare:@"true"]) {
             NSData *identityData = [identityString dataUsingEncoding:NSUTF8StringEncoding];
-
+            
             uint64_t identityHash = [MPIHasher hashFNV1a:identityData];
             idString = [@(identityHash) stringValue];
         } else {
             idString = identityString;
         }
-
+        
         if (idString) {
             [Flurry setUserID:idString];
             execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
@@ -184,7 +184,7 @@
     } else {
         execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeUnavailable];
     }
-
+    
     return execStatus;
 }
 
