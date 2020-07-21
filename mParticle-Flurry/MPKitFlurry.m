@@ -35,28 +35,30 @@
 }
 
 - (void)start {
-    if ([self.configuration[@"captureExceptions"] caseInsensitiveCompare:@"true"] == NSOrderedSame) {
-        [Flurry setCrashReportingEnabled:YES];
-    }
-    
-    [Flurry startSession:self.configuration[@"apiKey"] withOptions:self.launchOptions];
-    
-    _started = YES;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if ([self.configuration[@"captureExceptions"] caseInsensitiveCompare:@"true"] == NSOrderedSame) {
+            [Flurry setCrashReportingEnabled:YES];
+        }
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                            object:nil
-                                                          userInfo:userInfo];
+        [Flurry startSession:self.configuration[@"apiKey"] withOptions:self.launchOptions];
+        
+        self->_started = YES;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
+                                                                object:nil
+                                                              userInfo:userInfo];
+        });
     });
 }
 
 - (MPKitExecStatus *)beginTimedEvent:(MPEvent *)event {
     FlurryEventRecordStatus flurryRecordStatus = FlurryEventFailed;
     
-    if (event.info) {
-        flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.info timed:YES];
+    if (event.customAttributes) {
+        flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.customAttributes timed:YES];
     } else {
         flurryRecordStatus = [Flurry logEvent:event.name timed:YES];
     }
@@ -68,17 +70,25 @@
 }
 
 - (MPKitExecStatus *)endTimedEvent:(MPEvent *)event {
-    [Flurry endTimedEvent:event.name withParameters:event.info];
+    [Flurry endTimedEvent:event.name withParameters:event.customAttributes];
     
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
-- (MPKitExecStatus *)logEvent:(MPEvent *)event {
+- (nonnull MPKitExecStatus *)logBaseEvent:(nonnull MPBaseEvent *)event {
+    if ([event isKindOfClass:[MPEvent class]]) {
+        return [self routeEvent:(MPEvent *)event];
+    } else {
+        return [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceAppboy) returnCode:MPKitReturnCodeUnavailable];
+    }
+}
+
+- (MPKitExecStatus *)routeEvent:(MPEvent *)event {
     FlurryEventRecordStatus flurryRecordStatus = FlurryEventFailed;
     
-    if (event.info) {
-        flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.info];
+    if (event.customAttributes) {
+        flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.customAttributes];
     } else {
         flurryRecordStatus = [Flurry logEvent:event.name];
     }
