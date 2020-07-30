@@ -40,11 +40,9 @@
             crashReporting = YES;
         }
         
-        FlurrySessionBuilder* builder = [[[[[FlurrySessionBuilder new]
+        FlurrySessionBuilder* builder = [[[FlurrySessionBuilder new]
         withLogLevel:FlurryLogLevelCriticalOnly]
-        withCrashReporting:crashReporting]
-        withSessionContinueSeconds:10]
-        withAppVersion:[[MParticle sharedInstance] version]];
+        withCrashReporting:crashReporting];
         
         [Flurry startSession:self.configuration[@"apiKey"] withSessionBuilder:builder];
                 
