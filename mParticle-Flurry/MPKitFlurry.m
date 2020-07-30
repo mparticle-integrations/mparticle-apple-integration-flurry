@@ -1,5 +1,4 @@
 #import "MPKitFlurry.h"
-#import "MPEvent.h"
 #import <CoreLocation/CoreLocation.h>
 #import "MPIHasher.h"
 #import "mParticle.h"
@@ -36,12 +35,17 @@
 
 - (void)start {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        Boolean crashReporting = NO;
         if ([self.configuration[@"captureExceptions"] caseInsensitiveCompare:@"true"] == NSOrderedSame) {
-            [Flurry setCrashReportingEnabled:YES];
+            crashReporting = YES;
         }
         
-        [Flurry startSession:self.configuration[@"apiKey"] withOptions:self.launchOptions];
+        FlurrySessionBuilder* builder = [[[FlurrySessionBuilder new]
+        withLogLevel:FlurryLogLevelCriticalOnly]
+        withCrashReporting:crashReporting];
         
+        [Flurry startSession:self.configuration[@"apiKey"] withSessionBuilder:builder];
+                
         self->_started = YES;
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -115,27 +119,25 @@
 }
 
 - (MPKitExecStatus *)logScreen:(MPEvent *)event {
-    [Flurry logPageView];
-    
-    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
-    return execStatus;
-}
+    FlurryEventRecordStatus flurryRecordStatus = FlurryEventFailed;
 
-- (MPKitExecStatus *)setLocation:(CLLocation *)location {
-    MPKitExecStatus *execStatus;
-    
-    if ([[self.configuration[@"includeLocation"] lowercaseString] isEqualToString:@"true"]) {
-        [Flurry setLatitude:location.coordinate.latitude longitude:location.coordinate.longitude horizontalAccuracy:location.horizontalAccuracy verticalAccuracy:location.verticalAccuracy];
-        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
+    if (event.customAttributes) {
+        flurryRecordStatus = [Flurry logEvent:event.name withParameters:event.customAttributes];
     } else {
-        execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeUnavailable];
+        flurryRecordStatus = [Flurry logEvent:event.name];
     }
     
+    MPKitReturnCode kitReturnCode = flurryRecordStatus != FlurryEventFailed ? MPKitReturnCodeSuccess : MPKitReturnCodeFail;
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:kitReturnCode];
     return execStatus;
 }
 
 - (MPKitExecStatus *)setDebugMode:(BOOL)debugMode {
-    [Flurry setDebugLogEnabled:debugMode];
+    if (debugMode) {
+        [Flurry setLogLevel:FlurryLogLevelAll];
+    } else {
+        [Flurry setLogLevel:FlurryLogLevelNone];
+    }
     
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:@(MPKitInstanceFlurry) returnCode:MPKitReturnCodeSuccess];
     return execStatus;

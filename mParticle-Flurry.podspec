@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-Flurry"
-    s.version          = "7.16.3"
+    s.version          = "7.16.4"
     s.summary          = "Flurry integration for mParticle"
 
     s.description      = <<-DESC
@@ -16,5 +16,5 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = "8.0"
     s.ios.source_files      = 'mParticle-Flurry/*.{h,m,mm}'
     s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 7.0'
-    s.ios.dependency 'Flurry-iOS-SDK/FlurrySDK', '~> 9.3.1'
+    s.ios.dependency 'Flurry-iOS-SDK/FlurrySDK', '~> 10.3'
 end
