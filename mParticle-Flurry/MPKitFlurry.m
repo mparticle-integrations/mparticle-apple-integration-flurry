@@ -45,16 +45,16 @@
         withCrashReporting:crashReporting];
         
         [Flurry startSession:self.configuration[@"apiKey"] withSessionBuilder:builder];
-                
-        self->_started = YES;
+    });
+    
+    self->_started = YES;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                                object:nil
-                                                              userInfo:userInfo];
-        });
+        [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
+                                                            object:nil
+                                                          userInfo:userInfo];
     });
 }
 
