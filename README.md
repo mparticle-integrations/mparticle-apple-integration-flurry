@@ -7,7 +7,7 @@ This repository contains the [Flurry](https://www.flurry.com) integration for th
 1. Add the kit dependency to your app's Podfile:
 
     ```
-    pod 'mParticle-Flurry', '~> 7.0'
+    pod 'mParticle-Flurry', '~> 8'
     ```
 
 2. Follow the mParticle iOS SDK [quick-start](https://github.com/mParticle/mparticle-apple-sdk), then rebuild and launch your app, and verify that you see `"Included kits: { Flurry }"` in your Xcode console 
