@@ -3,7 +3,7 @@
 #import "MPIHasher.h"
 #import "mParticle.h"
 #import "MPKitRegister.h"
-#import "Flurry.h"
+#import <Flurry_iOS_SDK/Flurry_iOS_SDK.h>
 #import "MPEnums.h"
 
 @implementation MPKitFlurry
@@ -43,8 +43,9 @@
         FlurrySessionBuilder* builder = [[[FlurrySessionBuilder new]
         withLogLevel:FlurryLogLevelCriticalOnly]
         withCrashReporting:crashReporting];
-        
+
         [Flurry startSession:self.configuration[@"apiKey"] withSessionBuilder:builder];
+        
     });
     
     self->_started = YES;

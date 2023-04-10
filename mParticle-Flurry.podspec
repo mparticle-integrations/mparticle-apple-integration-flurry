@@ -16,12 +16,7 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = "9.0"
     s.ios.source_files      = 'mParticle-Flurry/*.{h,m,mm}'
     s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 8.0'
-    s.ios.dependency 'Flurry-iOS-SDK/FlurrySDK', '~> 11.2'
+    s.ios.dependency 'Flurry-iOS-SDK/FlurrySDK', '~> 12.2'
+    s.static_framework = true
 
-    s.ios.pod_target_xcconfig = {
-        'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-    }
-    s.ios.user_target_xcconfig = {
-        'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-    }
 end
